@@ -1,0 +1,12 @@
+.left-sidebar {
+	display: flex;
+	flex-direction: column;
+}
+
+.left-sidebar__component {
+	flex: 0 1 auto;
+	padding: 0.15rem;
+	display: flex;
+	flex-direction: column;
+	margin: 0.5rem;
+}

@@ -1,0 +1,30 @@
+.search-box {
+	border: 1px solid #ccc;
+	background: #cacaca;
+	display: flex;
+	margin: auto 0;
+	position: relative;
+}
+
+.search-box > input {
+	border-radius: 3px;
+	text-decoration: none;
+	box-shadow: none;
+	border: none;
+	width: 100%;
+	padding: 1em 2em;
+}
+
+::placeholder {
+	/* Chrome, Firefox, Opera, Safari 10.1+ */
+	color: #0f0f0f;
+	opacity: 1; /* Firefox */
+}
+:-ms-input-placeholder {
+	/* Internet Explorer 10-11 */
+	color: #0f0f0f;
+}
+::-ms-input-placeholder {
+	/* Microsoft Edge */
+	color: #0f0f0f;
+}
