@@ -14,8 +14,9 @@
 .wrapper__item {
 	flex: 1 0 auto;
 	margin: 1rem;
-	background-color: #cacaca;
+	background-color: #eaeaea;
+	border-radius: 3px;
 }
-.wrapper__item-content-view {
-	width: 50%;
+.wrapper__item:first-child {
+	max-width: 30%;
 }

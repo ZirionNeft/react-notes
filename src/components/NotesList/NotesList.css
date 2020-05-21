@@ -1,0 +1,38 @@
+.notes-list {
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+	min-height: 0;
+	flex-grow: 1;
+}
+
+.notes-list__item {
+	flex: 1 1 auto;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	padding: 0 2rem;
+	margin-bottom: 0.5rem;
+	min-height: 95px;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	-webkit-transition: 0.15s;
+	-moz-transition: 0.15s;
+	-o-transition: 0.15s;
+	transition: 0.15s;
+	cursor: pointer;
+}
+.notes-list__item_title {
+	margin-bottom: 0.35rem;
+}
+.notes-list__item_subtitle {
+	font-weight: initial;
+	font-style: italic;
+	display: inline;
+	color: #4a4a4a;
+}
+.notes-list__item:hover {
+	border-color: #6698cb;
+	background-color: #d1dbe6;
+}

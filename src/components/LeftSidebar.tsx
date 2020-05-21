@@ -4,11 +4,11 @@ import SidebarComponent from './SidebarComponent';
 
 class LeftSidebar extends React.Component {
 	render() {
-		const children = React.Children.map(this.props.children, (child) => (
+		const wrappedChildren = React.Children.map(this.props.children, (child) => (
 			<SidebarComponent>{child}</SidebarComponent>
 		));
 
-		return <div className="left-sidebar">{children}</div>;
+		return <div className="left-sidebar">{wrappedChildren}</div>;
 	}
 }
 
