@@ -1,26 +1,26 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import LeftSidebar from './components/LeftSidebar';
+import NoteContentView from './components/NoteContentView';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+	render() {
+		return (
+			<div className="app">
+				<div className="wrapper">
+					<div className="wrapper__item" style={{ backgroundColor: 'red' }}>
+						<LeftSidebar>left sidebar</LeftSidebar>
+					</div>
+					<div
+						className="wrapper__item wrapper__item-content-view"
+						style={{ backgroundColor: 'green' }}
+					>
+						<NoteContentView>Test content 2</NoteContentView>
+					</div>
+				</div>
+			</div>
+		);
+	}
 }
 
 export default App;
