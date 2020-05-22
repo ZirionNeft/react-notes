@@ -1,44 +1,101 @@
 import './App.css';
 
-import React from 'react';
+import React, { Component } from 'react';
 
 import Button, { ButtonColor } from './components/Button';
-import LeftSidebar from './components/LeftSidebar';
-import NoteContentView from './components/NoteContentView';
+import FlexView from './components/FlexView';
 import SearchBox from './components/SearchBox';
 import SelectBox from './components/SelectBox';
 import NotesList from './components/NotesList/NotesList';
+import Wrapper from './components/Wrapper';
+import NoteContent from './components/NoteContent';
+import { NotesService } from './notesService';
+import { Note } from './react-app-env';
 
-class App extends React.Component {
+interface AppState {
+	notes: Array<Note>;
+	activeNote: Note;
+}
+
+const emptyNote: Note = {
+	title: '',
+	body: '',
+	id: -1,
+};
+
+class App extends Component<any, AppState> {
+	constructor(props: any) {
+		super(props);
+
+		this.state = {
+			notes: [],
+			activeNote: emptyNote,
+		};
+
+		this.onClickCreate = this.onClickCreate.bind(this);
+		this.onClickListItem = this.onClickListItem.bind(this);
+	}
+
+	private async onClickCreate() {
+		await NotesService.create({
+			title: 'Новая заметка',
+			body: 'Введите текст',
+			id: NotesService.nextId(),
+		});
+		this.setState({ notes: await NotesService.getAll() });
+	}
+
+	private async onClickListItem(id: number) {
+		try {
+			let note: Note = await NotesService.read(id);
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	componentWillMount() {
+		NotesService.getAll().then((notes) => {
+			this.setState({ notes: notes });
+		});
+	}
+
 	render() {
 		return (
 			<div className="app">
-				<div className="wrapper">
-					<section className="wrapper__item">
-						<LeftSidebar>
-							<Button title="Добавить заметку" buttonColor={ButtonColor.Blue} />
-							<SearchBox />
-							<SelectBox
-								label="Сортировать по"
-								list={['убыванию даты', 'возрастанию даты']}
+				<Wrapper>
+					<FlexView>
+						<Button
+							onClick={this.onClickCreate}
+							title="Добавить заметку"
+							buttonColor={ButtonColor.Blue}
+						/>
+						<SearchBox />
+						<SelectBox
+							label="Сортировать по"
+							list={['убыванию даты', 'возрастанию даты']}
+						/>
+						<NotesList
+							items={this.state.notes}
+							onItemClick={this.onClickListItem}
+						/>
+					</FlexView>
+
+					<FlexView>
+						<div className="buttons-group">
+							<Button
+								onClick={() => {}}
+								title="Редактировать"
+								buttonColor={ButtonColor.Green}
 							/>
-							<NotesList
-								items={[
-									{ title: 'test', description: 'descr123...', noteId: 0 },
-									{
-										title: 'test',
-										description:
-											'lorem ipsum dolor sit amet dlm mldsa; m;d;amslmgldks lkngldsn nlgsd',
-										noteId: 1,
-									},
-								]}
+							<Button
+								onClick={() => {}}
+								title="Удалить"
+								buttonColor={ButtonColor.Red}
 							/>
-						</LeftSidebar>
-					</section>
-					<section className="wrapper__item">
-						<NoteContentView>Test content 2</NoteContentView>
-					</section>
-				</div>
+						</div>
+						<NoteContent {...this.state.activeNote} />
+					</FlexView>
+				</Wrapper>
 			</div>
 		);
 	}

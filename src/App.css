@@ -20,3 +20,10 @@
 .wrapper__item:first-child {
 	max-width: 30%;
 }
+
+.buttons-group {
+	display: flex;
+}
+.buttons-group > .button {
+	margin-right: 0.5rem;
+}
