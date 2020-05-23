@@ -1,11 +1,19 @@
 import React, { Component } from 'react';
 import './SearchBox.css';
 
-class SearchBox extends Component {
+export interface SearchBoxProps {
+	onChange?(event: React.ChangeEvent<HTMLInputElement>): void;
+}
+
+class SearchBox extends Component<SearchBoxProps> {
 	render() {
 		return (
 			<div className="search-box">
-				<input type="text" placeholder="Поиск..." />
+				<input
+					onChange={this.props.onChange}
+					type="search"
+					placeholder="Поиск..."
+				/>
 			</div>
 		);
 	}

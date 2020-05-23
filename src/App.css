@@ -21,6 +21,10 @@
 	max-width: 30%;
 }
 
+.note-content__container > .flex-view__item:last-child {
+	flex-grow: 1;
+}
+
 .buttons-group {
 	display: flex;
 }

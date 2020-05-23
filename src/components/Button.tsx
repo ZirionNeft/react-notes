@@ -5,12 +5,13 @@ export enum ButtonColor {
 	Red = 0,
 	Blue,
 	Green,
+	Orange,
 }
 
 export interface ButtonProps {
 	title?: string;
 	buttonColor?: ButtonColor;
-	onClick(...args: any): void;
+	onClick(): void;
 }
 
 class Button extends Component<ButtonProps> {
@@ -20,15 +21,18 @@ class Button extends Component<ButtonProps> {
 		this.handleClick = this.handleClick.bind(this);
 	}
 
-	handleClick(...args: any) {
-		this.props.onClick(args);
+	handleClick() {
+		this.props.onClick();
 	}
 
 	private pickButtonColorClass(color?: ButtonColor) {
 		return color
-			? ['button__color-red', 'button__color-blue', 'button__color-green'][
-					color
-			  ]
+			? [
+					'button__color-red',
+					'button__color-blue',
+					'button__color-green',
+					'button__color-orange',
+			  ][color]
 			: '';
 	}
 

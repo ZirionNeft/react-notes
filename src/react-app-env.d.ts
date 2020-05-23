@@ -4,5 +4,8 @@ export interface Note {
 	id: number;
 	title: string;
 	body: string;
-	createDate?: Date;
+}
+
+export interface CreateDate {
+	createDate: Date;
 }

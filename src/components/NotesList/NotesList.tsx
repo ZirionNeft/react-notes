@@ -7,36 +7,26 @@ import NotesListItem from './NotesListItem';
 
 export interface NotesListProps {
 	items: Array<Note>;
+	activeNoteId: number;
 	onItemClick(
 		id: number,
 		event?: React.MouseEvent<HTMLDivElement, MouseEvent>
 	): void;
+	onItemDelete(id: number): void;
 }
 
-interface NotesListState {
-	loading: boolean;
-	items: Array<Note>;
-}
-
-class NotesList extends Component<NotesListProps, NotesListState> {
-	constructor(props: NotesListProps) {
-		super(props);
-
-		this.state = {
-			loading: true,
-			items: this.props.items,
-		};
-
-		this.onItemClick = this.onItemClick.bind(this);
-	}
-
-	onItemClick() {}
-
+class NotesList extends Component<NotesListProps> {
 	render() {
 		return (
 			<div className="notes-list">
 				{this.props.items.map((item, i) => (
-					<NotesListItem key={i} {...item} onClick={this.props.onItemClick} />
+					<NotesListItem
+						key={i}
+						{...item}
+						onClick={this.props.onItemClick}
+						onClickDelete={this.props.onItemDelete}
+						isActive={this.props.activeNoteId === item.id}
+					/>
 				))}
 			</div>
 		);

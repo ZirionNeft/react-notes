@@ -1,0 +1,21 @@
+.text-box {
+	display: block;
+	background: transparent;
+	border: none;
+	outline: none;
+	font: inherit;
+	border-radius: 3px;
+	resize: none;
+	-webkit-transition: 0.3s;
+	-moz-transition: 0.3s;
+	-o-transition: 0.3s;
+	transition: 0.3s;
+}
+
+.text-box:not([readonly]) {
+	background-color: #fff;
+}
+
+.text-box_error {
+	background-color: #faa;
+}

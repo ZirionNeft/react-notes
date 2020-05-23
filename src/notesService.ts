@@ -1,66 +1,64 @@
-import { Note } from './react-app-env';
+import { Note, CreateDate } from './react-app-env';
+import { SortType } from './enums';
+
+export type ServiceNote = Note & CreateDate;
 
 export class NotesService {
-	static create = (note: Note): Promise<void> => {
-		note.createDate = new Date();
-		return new Promise((resolve) =>
-			resolve(localStorage.setItem(`note_${note.id}`, JSON.stringify(note)))
-		);
+	private static toNote(serviceNote: ServiceNote) {
+		delete serviceNote.createDate;
+		return serviceNote;
+	}
+
+	static create = async (note: ServiceNote | Note): Promise<Note> => {
+		let serviceNote: ServiceNote = { ...note, ...{ createDate: new Date() } };
+		localStorage.setItem(`note_${note.id}`, JSON.stringify(serviceNote));
+		return NotesService.toNote(serviceNote);
 	};
 
-	static read = (id: number): Promise<Note> => {
-		return new Promise((resolve, reject) => {
-			let note: string | null = localStorage.getItem(`note_${id}`);
+	static read = async (id: number): Promise<Note> => {
+		let note: string | null = localStorage.getItem(`note_${id}`);
 
-			if (!note) return reject('Запись не найдена');
+		if (!note) throw new Error('Запись не найдена');
 
-			resolve(JSON.parse(note));
-		});
+		return NotesService.toNote(JSON.parse(note));
 	};
 
-	static update = (note: Note): Promise<void> => {
-		return new Promise((resolve, reject) => {
-			let oldStringNote: string | null = localStorage.getItem(
-				`note_${note.id}`
-			);
+	static update = async (note: Note): Promise<Note> => {
+		let oldStringNote: string | null = localStorage.getItem(`note_${note.id}`);
 
-			if (!oldStringNote) return reject('Запись не найдена');
+		if (!oldStringNote) throw new Error('Запись не найдена');
 
-			let oldNote: Note = JSON.parse(oldStringNote);
+		let newNote: ServiceNote = { ...JSON.parse(oldStringNote), ...note };
 
-			note.createDate = oldNote.createDate;
+		localStorage.setItem(`note_${note.id}`, JSON.stringify(newNote));
 
-			resolve(
-				localStorage.setItem(
-					`note_${note.id}`,
-					JSON.stringify({ ...oldNote, ...note })
-				)
-			);
-		});
+		return NotesService.toNote(newNote);
 	};
 
-	static delete = (id: number): Promise<void> => {
-		return new Promise((resolve) =>
-			resolve(localStorage.removeItem(`note_${id}`))
-		);
+	static delete = async (id: number): Promise<void> => {
+		return localStorage.removeItem(`note_${id}`);
 	};
 
-	static getAll = (): Promise<Array<Note>> => {
-		return new Promise((resolve) => {
-			let notes: Array<Note> = [];
-			for (
-				let i = 0, next = localStorage.key(i);
-				(next = localStorage.key(i++));
-				next
-			) {
-				if (!next.includes('note_')) continue;
-				let note = localStorage.getItem(next);
-				if (!note) continue;
-				notes.push(JSON.parse(note));
-			}
+	static getAll = async (): Promise<Array<ServiceNote>> => {
+		let notes: Array<ServiceNote> = [];
+		for (
+			let i = 0, next = localStorage.key(i);
+			(next = localStorage.key(i++));
+			next
+		) {
+			if (!next.includes('note_')) continue;
+			let note = localStorage.getItem(next);
+			if (!note) continue;
+			notes.push(JSON.parse(note));
+		}
 
-			resolve(notes);
-		});
+		return notes;
+	};
+
+	static getSortedAll = async (
+		type: SortType = SortType.DESC
+	): Promise<Array<ServiceNote>> => {
+		return NotesService.sort(await NotesService.getAll(), type);
 	};
 
 	static nextId() {
@@ -71,4 +69,24 @@ export class NotesService {
 		localStorage.setItem('next_id', '' + id);
 		return id;
 	}
+
+	static sort = async <T extends CreateDate>(
+		notes: Array<T>,
+		type: SortType = SortType.DESC
+	) => {
+		return notes.sort((a: T, b: T): number =>
+			type === SortType.DESC
+				? new Date(b.createDate).getTime() - new Date(a.createDate).getTime()
+				: new Date(a.createDate).getTime() - new Date(b.createDate).getTime()
+		);
+	};
+
+	static search = async <T extends Note>(
+		notes: Array<T>,
+		searchKey: string
+	): Promise<Array<T>> => {
+		return notes.filter((value: T) =>
+			value.title.toLowerCase().includes(searchKey.toLowerCase())
+		);
+	};
 }

@@ -4,18 +4,21 @@ import './SelectBox.css';
 export interface SelectBoxProps {
 	list: Array<string>;
 	label?: string;
+	onChange(value: number): void;
 }
 
-class SelectBox extends Component<SelectBoxProps, { value: string }> {
+class SelectBox extends Component<SelectBoxProps, { value: number }> {
 	constructor(props: SelectBoxProps) {
 		super(props);
-		this.state = { value: props.list[0] };
+		this.state = { value: 0 };
 
 		this.handleChange = this.handleChange.bind(this);
 	}
 
 	handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
-		this.setState({ value: event.target.value });
+		let value: number = Number.parseInt(event.target.value);
+		this.setState({ value: value });
+		this.props.onChange(value);
 	}
 
 	render() {
@@ -29,7 +32,9 @@ class SelectBox extends Component<SelectBoxProps, { value: string }> {
 						onChange={this.handleChange}
 					>
 						{this.props.list.map((el, i) => (
-							<option key={i}>{el}</option>
+							<option value={i} key={i}>
+								{el}
+							</option>
 						))}
 					</select>
 				</label>
