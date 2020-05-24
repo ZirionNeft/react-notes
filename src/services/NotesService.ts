@@ -1,9 +1,9 @@
-import { Note, CreateDate } from './react-app-env';
-import { SortType } from './enums';
+import { Note, CreateDate } from '../react-app-env';
+import { SortType } from '../enums';
 
 export type ServiceNote = Note & CreateDate;
 
-export class NotesService {
+export default class NotesService {
 	private static toNote(serviceNote: ServiceNote) {
 		delete serviceNote.createDate;
 		return serviceNote;

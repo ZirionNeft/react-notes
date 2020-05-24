@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import EditableTextBox from './EditableTextBox';
+import EditableTextBox from '../EditableTextBox';
 import './NoteContent.css';
-import { Note } from '../react-app-env';
+import { Note } from '../../react-app-env';
 
 export interface NoteContentProps {
 	title: string;
@@ -16,6 +16,8 @@ interface NoteContentState {
 	body: string;
 	id: number;
 }
+
+const MAX_TITLE_LENGTH = 24;
 
 class NoteContent extends Component<NoteContentProps, NoteContentState> {
 	constructor(props: NoteContentProps) {
@@ -48,7 +50,10 @@ class NoteContent extends Component<NoteContentProps, NoteContentState> {
 
 	collectNote() {
 		this.props.onChange({
-			title: this.state.title ? this.state.title : this.props.title,
+			title:
+				this.state.title && this.state.title.length <= MAX_TITLE_LENGTH
+					? this.state.title
+					: this.props.title,
 			body: this.state.body ? this.state.body : this.props.body,
 			id: this.props.id,
 		});
@@ -73,7 +78,9 @@ class NoteContent extends Component<NoteContentProps, NoteContentState> {
 					inEditMode={this.props.inEditMode}
 					onChange={this.titleChange}
 					errorExpression={() =>
-						this.state.title === '' && this.state.id !== -1
+						(this.state.title === '' ||
+							this.state.title.length > MAX_TITLE_LENGTH) &&
+						this.state.id !== -1
 					}
 				/>
 

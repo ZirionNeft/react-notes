@@ -6,12 +6,13 @@ import Button, { ButtonColor } from './components/Button';
 import FlexView from './components/FlexView';
 import SearchBox from './components/SearchBox';
 import SelectBox from './components/SelectBox';
-import NotesList from './components/NotesList/NotesList';
+import NotesList from './components/Notes/NotesList';
 import Wrapper from './components/Wrapper';
-import NoteContent from './components/NoteContent';
-import { NotesService, ServiceNote } from './notesService';
+import NoteContent from './components/Notes/NoteContent';
+import NotesService, { ServiceNote } from './services/NotesService';
 import { Note } from './react-app-env';
 import { SortType } from './enums';
+import Helper, { EmptyNote } from './services/HelperService';
 
 interface AppState {
 	notes: Array<ServiceNote>;
@@ -22,12 +23,6 @@ interface AppState {
 	lastSearch?: string;
 }
 
-const EMPTY_NOTE: Note = {
-	title: '',
-	body: '',
-	id: -1,
-};
-
 class App extends Component<any, AppState> {
 	constructor(props: any) {
 		super(props);
@@ -35,8 +30,8 @@ class App extends Component<any, AppState> {
 		this.state = {
 			notes: [],
 			notesSort: SortType.DESC,
-			activeNote: EMPTY_NOTE,
-			bufferNote: EMPTY_NOTE,
+			activeNote: EmptyNote,
+			bufferNote: EmptyNote,
 			inEditMode: false,
 			lastSearch: '',
 		};
@@ -49,7 +44,6 @@ class App extends Component<any, AppState> {
 		this.onClickSave = this.onClickSave.bind(this);
 
 		this.onChangeSearchBox = this.onChangeSearchBox.bind(this);
-
 		this.onListSortChange = this.onListSortChange.bind(this);
 		this.updateBufferNote = this.updateBufferNote.bind(this);
 		this.refreshNotes = this.refreshNotes.bind(this);
@@ -67,32 +61,39 @@ class App extends Component<any, AppState> {
 	}
 
 	private async onClickDelete(id?: number) {
-		if (this.state.activeNote.id === EMPTY_NOTE.id && id === EMPTY_NOTE.id)
+		const activeNote: Note = this.state.activeNote;
+
+		if (Helper.isEmptyNote(activeNote.id) && Helper.isEmptyNote(id ?? -1))
 			return;
 
-		await NotesService.delete(id ? id : this.state.activeNote.id);
+		await NotesService.delete(id ?? activeNote.id);
 
-		if (id === this.state.activeNote.id || typeof id === 'undefined')
-			this.setState({ activeNote: EMPTY_NOTE, inEditMode: false });
+		if (id === activeNote.id || typeof id === 'undefined')
+			this.setState({ activeNote: EmptyNote, inEditMode: false });
 
 		this.refreshNotes();
 	}
 
 	private async refreshNotes() {
+		const searchKey: string = this.state.lastSearch ?? '';
+
+		let allNotes: ServiceNote[] = await NotesService.getSortedAll(
+			this.state.notesSort
+		);
+
 		this.setState({
-			notes: await NotesService.getSortedAll(this.state.notesSort),
+			notes:
+				searchKey === ''
+					? allNotes
+					: await NotesService.search(allNotes, searchKey),
 		});
 	}
 
 	private onClickEdit() {
-		if (this.state.activeNote.id === EMPTY_NOTE.id || this.state.inEditMode)
+		if (Helper.isEmptyNote(this.state.activeNote.id) || this.state.inEditMode)
 			return;
 
 		this.setState({ inEditMode: true });
-	}
-
-	private static async pickNoteIfEquals(noteA: Note, noteB: Note) {
-		return noteA.id === noteB.id ? noteA : EMPTY_NOTE;
 	}
 
 	private async onClickSave() {
@@ -100,8 +101,8 @@ class App extends Component<any, AppState> {
 
 		let bufferNote: Note = this.state.bufferNote;
 
-		if (bufferNote.id === EMPTY_NOTE.id) {
-			this.setState({ inEditMode: false, activeNote: EMPTY_NOTE });
+		if (Helper.isEmptyNote(bufferNote.id)) {
+			this.setState({ inEditMode: false, activeNote: EmptyNote });
 			return;
 		}
 
@@ -111,7 +112,7 @@ class App extends Component<any, AppState> {
 			this.setState({
 				activeNote: note,
 				inEditMode: false,
-				bufferNote: await App.pickNoteIfEquals(note, this.state.activeNote),
+				bufferNote: Helper.pickFirstNoteIfEquals(note, this.state.activeNote),
 			});
 
 			this.refreshNotes();
@@ -120,7 +121,7 @@ class App extends Component<any, AppState> {
 		}
 	}
 
-	updateBufferNote(note: Note) {
+	private async updateBufferNote(note: Note) {
 		this.setState({
 			bufferNote: note,
 		});
@@ -134,14 +135,15 @@ class App extends Component<any, AppState> {
 	}
 
 	private async onClickListItem(id: number) {
+		const activeNote: Note = this.state.activeNote;
+
 		try {
 			let note: Note = await NotesService.read(id);
 
 			this.setState({
 				activeNote: note,
-				bufferNote: await App.pickNoteIfEquals(note, this.state.activeNote),
-				inEditMode:
-					id === this.state.activeNote.id ? this.state.inEditMode : false,
+				bufferNote: Helper.pickFirstNoteIfEquals(note, activeNote),
+				inEditMode: id === activeNote.id ? this.state.inEditMode : false,
 			});
 			this.updateBufferNote(note);
 		} catch (e) {
@@ -153,19 +155,7 @@ class App extends Component<any, AppState> {
 		await this.setState({
 			lastSearch: value,
 		});
-
-		if (value === '') {
-			this.refreshNotes();
-			return;
-		}
-
-		let allNotes: ServiceNote[] = await NotesService.getSortedAll(
-			this.state.notesSort
-		);
-
-		this.setState({
-			notes: await NotesService.search(allNotes, value),
-		});
+		this.refreshNotes();
 	}
 
 	componentDidMount() {
